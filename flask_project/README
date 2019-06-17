@@ -1,0 +1,28 @@
+Application (application.py)
+
+  Input Interface :
+
+    Model (model.py called from application.py) :
+
+      Website interface that allows the user to choose between two input
+      query options:
+
+        1. Gene: Yeast Gene Name [or] Common ID (Single Query)(Ex. RAF1 or R0030W)
+        2. Sequence: User specific sequence (Ex. AATGCAAAAATTGAAATCAA . . .)
+
+      The model requires input for Sequence if the Gene entry is left blank, and
+      the Gene query is required if Sequence is left blank. Additionally if the
+      Gene text box is filled upstream and downstream buffers are required. Those
+      buffer current default to 100 and 500 respectively. The values of the user
+      inputs are then saved to variables in application.py
+
+      HTML (query.html called from application.py) :
+
+        HTML the builds a very simple web interface that contain four input
+        boxes (Gene, Sequence, Upstream Buffer and Downstream Buffer), short
+        descriptions of each query, and a submit button.
+
+
+      Improvements: Have fields reset after inputs are submitted. This could
+      be accomplished by just redirecting to the plotting page after submission.
+      
