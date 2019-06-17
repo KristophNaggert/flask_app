@@ -1,4 +1,5 @@
 from model import InputForm
+from getSeq import get_seq
 from flask import Flask, render_template, request
 import sys, time
 
@@ -23,7 +24,6 @@ def index():
         while (len(gene_from_genome)==0 & len(user_input_seq)==0):
             time.sleep(1)
 
-        from getSeq import get_seq
         ret_seq = getSeq(upstreamBuf, downstreamBuf, gene_from_genome)
         print(ret_seq)
 
