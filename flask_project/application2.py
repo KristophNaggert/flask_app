@@ -49,25 +49,73 @@ class InputForm(Form):
 def index():
     form = InputForm(request.form)
     if request.method == 'POST' and form.validate():
+
         global gene_from_genome
         global upstreamBuf
         global downstreamBuf
         global user_input_seq
+
         gene_from_genome = form.gene.data
         upstreamBuf = form.upstream_buffer.data
         downstreamBuf = form.downstream_buffer.data
         user_input_seq = form.sequence.data
 
-        print(gene_from_genome)
-        print(upstreamBuf)
-        print(downstreamBuf)
-        print(user_input_seq)
+        '''
+        Need to come up with a useable solution here.
+        '''
 
         time.sleep(20)
+
+        '''
+        Need to create a number on conditional statements to accomplish:
+
+        1.) Differeniate between standard gene names that need to be converted
+        into a form that get_seq will understand and gene IDs that can be passed
+        in without being converted.
+
+
+
+
+        2.) A statement that differeniates between gene sequence thats between
+        pulled from ensembl and sequence that has been entered by the user.
+
+        if (len(gene_from_genome) == 0 and len(user_input_seq) != 0):
+            global seq
+            seq = user_input_seq
+        else:
+            global seq
+            seq = get_seq(gene_from_genome, upstreamBuf, downstreamBuf)
+
+        else:
+
+
+        '''
 
         global seq
         seq = get_seq(gene_from_genome, upstreamBuf, downstreamBuf)
         print(seq)
+
+        '''
+        Run the predictive program with the fetched or user inputed sequence.
+
+        pred_out = predict(seq) #Probabily need to turn this into a global variable.
+        '''
+
+        '''
+        Pass that predictive output into the data visualization tools.
+        '''
+
+        '''
+        Build in a reset function, so that the page doesn't need to be reloaded
+        each time a plot is created and the user wants to display new ones.
+        Potential solutions to this would be to:
+
+        1.) Host the data visualizations on a different page (That is submiting
+        user inputs redirects the user to a webpage extension).
+
+        2.) Build a reset button that clears all inputs and resets all variables,
+        allowing the user to re-run with new inputs.
+        '''
 
     return render_template('query.html', form = form, gene_from_genome = gene_from_genome, upstreamBuf = upstreamBuf, downstreamBuf = downstreamBuf, user_input_seq = user_input_seq, seq = seq)
 
@@ -91,6 +139,27 @@ def get_seq(gene_from_genome, upstreamBuf, downstreamBuf):
     seq = r.text
 
     return seq
+
+def convert_to_symbol(gene_from_genome):
+
+        server = "https://rest.ensembl.org"
+        #ext = "/lookup/symbol/saccharomyces_cerevisiae/GCN3?"
+
+        gene = 'GCN3'
+        ext = '/lookup/symbol/saccharomyces_cerevisiae/'+gene_from_genome+'?'
+
+        r = requests.get(server+ext, headers={ "Content-Type" : "application/json"})
+
+        if not r.ok:
+          r.raise_for_status()
+          sys.exit()
+
+        decoded = r.json()
+        print(repr(decoded['id']))
+        gene_sym = (repr(decoded['id']))
+
+        return gene_sym
+
 
 if __name__ == '__main__':
     app.run(debug=True)
