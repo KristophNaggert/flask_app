@@ -1,5 +1,4 @@
 from model import InputForm
-from getSeq import get_seq
 from flask import Flask, render_template, request
 import sys, time
 
@@ -21,15 +20,18 @@ def index():
 
         time.sleep(20)
 
-        while (len(gene_from_genome)==0 & len(user_input_seq)==0):
+        while (len(gene_from_genome)==0 and len(user_input_seq)==0):
             time.sleep(1)
 
-        ret_seq = getSeq(upstreamBuf, downstreamBuf, gene_from_genome)
-        print(ret_seq)
-
-
-
     return render_template('query.html', form=form)
+
+from getSeq import get_seq
+
+def retreive_sequence(upstreamBuf, downstreamBuf, gene_from_genome):
+
+    ret_seq = get_seq(upstreamBuf, downstreamBuf, gene_from_genome)
+
+    return ret_seq
 
 if __name__ == '__main__':
     app.run(debug=True)

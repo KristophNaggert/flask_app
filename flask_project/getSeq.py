@@ -4,7 +4,7 @@ import requests, sys
 Sourced from: https://rest.ensembl.org/documentation/info/sequence_id
 '''
 
-class get_seq():
+class get_seq(upstreamBuf, downstreamBuf, gene_from_genome):
 
     server = "https://rest.ensembl.org"
 
