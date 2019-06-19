@@ -1,3 +1,17 @@
+'''
+----------------------------------------------------------------------------------
+|             application2.py - Data visualization Flask application             |
+----------------------------------------------------------------------------------
+| Kristoph Naggert | Mount Desert Island Biological Laboratory | Oberlin College |
+----------------------------------------------------------------------------------
+|                           Friday, June 18th, 2019                              |
+----------------------------------------------------------------------------------
+'''
+
+'''
+Import required libraries and specific functions.
+'''
+
 from flask import Flask, render_template, request
 from wtforms import Form, TextField, validators
 from wtforms.validators import DataRequired, Optional
@@ -5,11 +19,18 @@ import sys, time, requests
 
 app = Flask(__name__)
 
+
+'''
+Initialize Global Varaibles
+'''
+
 gene_from_genome = ""
 upstreamBuf = ""
 downstreamBuf = ""
 user_input_seq = ""
 seq = ""
+
+
 
 class RequiredIf(DataRequired):
 
@@ -39,11 +60,15 @@ class RequiredIf(DataRequired):
                 DataRequired.__call__(self, form, field)
             Optional()(form, field)
 
+
+
 class InputForm(Form):
     gene = TextField(label = 'Enter Standard Yeast Gene ID or Gene Name', validators = [validators.optional()])
     sequence = TextField(label = 'Specific User Generated Gene Sequence', validators = [RequiredIf(gene='')])
     upstream_buffer = TextField(label = 'Upstream Buffer', validators = [RequiredIf(gene='')], default='100')
     downstream_buffer = TextField(label = 'Downstream Buffer', validators = [RequiredIf(gene='')], default='500')
+
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -73,27 +98,25 @@ def index():
         into a form that get_seq will understand and gene IDs that can be passed
         in without being converted.
 
-
-
-
         2.) A statement that differeniates between gene sequence thats between
         pulled from ensembl and sequence that has been entered by the user.
-
-        if (len(gene_from_genome) == 0 and len(user_input_seq) != 0):
-            global seq
-            seq = user_input_seq
-        else:
-            global seq
-            seq = get_seq(gene_from_genome, upstreamBuf, downstreamBuf)
-
-        else:
-
-
         '''
+'''
+    if (gene_from_genome uses a common gene name):
+        global gene_from_genome
+        gene_from_genome = convert_to_symbol(gene_from_genome)
+    else:
+        #do nothing
+'''
 
+    if (len(gene_from_genome) == 0 and len(user_input_seq) != 0):
+        global seq
+        seq = user_input_seq
+    else:
         global seq
         seq = get_seq(gene_from_genome, upstreamBuf, downstreamBuf)
-        print(seq)
+
+    print(seq)
 
         '''
         Run the predictive program with the fetched or user inputed sequence.
@@ -119,7 +142,10 @@ def index():
 
     return render_template('query.html', form = form, gene_from_genome = gene_from_genome, upstreamBuf = upstreamBuf, downstreamBuf = downstreamBuf, user_input_seq = user_input_seq, seq = seq)
 
+
+
 def get_seq(gene_from_genome, upstreamBuf, downstreamBuf):
+
     '''
     Sourced from: https://rest.ensembl.org/documentation/info/sequence_id
     '''
@@ -127,7 +153,6 @@ def get_seq(gene_from_genome, upstreamBuf, downstreamBuf):
     server = "https://rest.ensembl.org"
 
     ext = '/sequence/id/'+gene_from_genome+'?expand_5prime='+downstreamBuf+';expand_3prime='+upstreamBuf
-    #print(ext)
 
     r = requests.get(server+ext, headers={ "Content-Type" : "text/plain"})
 
@@ -135,17 +160,16 @@ def get_seq(gene_from_genome, upstreamBuf, downstreamBuf):
         r.raise_for_status()
         sys.exit()
 
-    #print(r.text)
     seq = r.text
 
     return seq
 
+
+
 def convert_to_symbol(gene_from_genome):
 
         server = "https://rest.ensembl.org"
-        #ext = "/lookup/symbol/saccharomyces_cerevisiae/GCN3?"
 
-        gene = 'GCN3'
         ext = '/lookup/symbol/saccharomyces_cerevisiae/'+gene_from_genome+'?'
 
         r = requests.get(server+ext, headers={ "Content-Type" : "application/json"})
@@ -155,10 +179,10 @@ def convert_to_symbol(gene_from_genome):
           sys.exit()
 
         decoded = r.json()
-        print(repr(decoded['id']))
         gene_sym = (repr(decoded['id']))
 
         return gene_sym
+
 
 
 if __name__ == '__main__':
