@@ -101,22 +101,34 @@ def index():
         2.) A statement that differeniates between gene sequence thats between
         pulled from ensembl and sequence that has been entered by the user.
         '''
-'''
-    if (gene_from_genome uses a common gene name):
-        global gene_from_genome
-        gene_from_genome = convert_to_symbol(gene_from_genome)
-    else:
-        #do nothing
-'''
 
-    if (len(gene_from_genome) == 0 and len(user_input_seq) != 0):
-        global seq
-        seq = user_input_seq
-    else:
+        '''
+
+        # Possible solution: Build a try/except conditional, try the getSeq
+        code with the gene, if an error is thrown try to convert it and then
+        run getSeq again.
+
+        if (gene_from_genome uses a common gene name):
+            global gene_from_genome
+            gene_from_genome = convert_to_symbol(gene_from_genome)
+        else:
+            #do nothing
+        '''
+
+        '''
+        if (len(gene_from_genome) == 0 and len(user_input_seq) != 0):
+            global seq
+            seq = user_input_seq
+        else:
+            global seq
+            seq = get_seq(gene_from_genome, upstreamBuf, downstreamBuf)
+        '''
+
+        #gene_from_genome = convert_to_symbol(gene_from_genome)
+
         global seq
         seq = get_seq(gene_from_genome, upstreamBuf, downstreamBuf)
-
-    print(seq)
+        print(seq)
 
         '''
         Run the predictive program with the fetched or user inputed sequence.
@@ -179,9 +191,14 @@ def convert_to_symbol(gene_from_genome):
           sys.exit()
 
         decoded = r.json()
-        gene_sym = (repr(decoded['id']))
+        gene_sym = decoded['id']
 
         return gene_sym
+
+        '''
+        Issue 1: Certain genes seem to not exist, for example RAF1 cannot be
+        converted to a symbol for some reason.
+        '''
 
 
 
