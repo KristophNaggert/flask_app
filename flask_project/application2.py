@@ -16,6 +16,8 @@ from flask import Flask, render_template, request
 from wtforms import Form, TextField, validators
 from wtforms.validators import DataRequired, Optional
 import sys, time, requests
+import pandas as pd
+import numpy as np
 
 app = Flask(__name__)
 
@@ -89,42 +91,9 @@ def index():
         Need to come up with a useable solution here.
         '''
 
-        time.sleep(20)
+        time.sleep(15) '''This will need to be changed in the final iteration of the application'''
 
-        '''
-        Need to create a number on conditional statements to accomplish:
-
-        1.) Differeniate between standard gene names that need to be converted
-        into a form that get_seq will understand and gene IDs that can be passed
-        in without being converted.
-
-        2.) A statement that differeniates between gene sequence thats between
-        pulled from ensembl and sequence that has been entered by the user.
-        '''
-
-        '''
-
-        # Possible solution: Build a try/except conditional, try the getSeq
-        code with the gene, if an error is thrown try to convert it and then
-        run getSeq again.
-
-        if (gene_from_genome uses a common gene name):
-            global gene_from_genome
-            gene_from_genome = convert_to_symbol(gene_from_genome)
-        else:
-            #do nothing
-        '''
-
-        '''
-        if (len(gene_from_genome) == 0 and len(user_input_seq) != 0):
-            global seq
-            seq = user_input_seq
-        else:
-            global seq
-            seq = get_seq(gene_from_genome, upstreamBuf, downstreamBuf)
-        '''
-
-        #gene_from_genome = convert_to_symbol(gene_from_genome)
+        gene_from_genome = convert_to_symbol(gene_from_genome)
 
         global seq
         seq = get_seq(gene_from_genome, upstreamBuf, downstreamBuf)
@@ -180,26 +149,31 @@ def get_seq(gene_from_genome, upstreamBuf, downstreamBuf):
 
 def convert_to_symbol(gene_from_genome):
 
-        server = "https://rest.ensembl.org"
+    ''' Read in the data '''
+    ''' Path to data currently hard coded, needs will need to changed when moved to server '''
 
-        ext = '/lookup/symbol/saccharomyces_cerevisiae/'+gene_from_genome+'?'
+    df = pd.read_csv('/Users/knaggert/Desktop/flask_project/data/results.tsv', delimiter=r'\s+', header = None, names = ['Sys_Name','Std_Name'])
 
-        r = requests.get(server+ext, headers={ "Content-Type" : "application/json"})
+    gene_from_genome = gene_from_genome.upper()
 
-        if not r.ok:
-          r.raise_for_status()
-          sys.exit()
+    if (any(df['Sys_Name'] == gene_from_genome)):
+        gene_from_genome = gene_from_genome
+        return gene_from_genome
+    else:
+        index = next(iter(df[df.Std_Name==gene_from_genome].index), 'No match.')
+        gene_from_genome = df.Sys_Name[index]
+        return gene_from_genome
 
-        decoded = r.json()
-        gene_sym = decoded['id']
+    '''
+    Currently has no way to catch and inform the user of the application
+    if the standard gene name or systematic gene name do not exist in the
+    local database.
 
-        return gene_sym
-
-        '''
-        Issue 1: Certain genes seem to not exist, for example RAF1 cannot be
-        converted to a symbol for some reason.
-        '''
-
+    Also need to create a catch if there is no input, becuase there are certain
+    entries in the gene list (results.tsv) whose Std_Name entry is ""and the
+    application might break if the program tries to find the gene name "" when a
+    user sequence is input.
+    '''
 
 
 if __name__ == '__main__':
