@@ -33,7 +33,7 @@ from bokeh.palettes import Viridis5, Magma256
 def Intensity_Plot(data, TOOLS):
 
     dataI = data
-    
+
     columns = ['e1', 'e2', 'e3', 'pASite', 'e4']
 
     array_1 = []
@@ -108,11 +108,11 @@ def Intensity_Plot(data, TOOLS):
 
     return(p)
 
-    
+
 def Stacked_Line_Plot(data, TOOLS):
 
     dataS = data
-    
+
     '''
     Stacked Plots (Left-Hand Side)
     '''
@@ -136,44 +136,44 @@ def Stacked_Line_Plot(data, TOOLS):
     source = ColumnDataSource(df_comp)
 
     ''' Individual Line Graph for  e1 '''
-    
+
     s1 = figure(title = 'e1', toolbar_location = "right", tools = TOOLS, tooltips = [('Position', '@Position'), ('Score', '@e1'), ('Sequence', '@Seq')])
-    
+
     s1.line('Position', 'e1', line_width = 2, color = Viridis5[0], source = source)
-    
+
     s1.yaxis.axis_label = "Score"
 
     ''' Individual Line Graph for  e2 '''
-     
+
     s2 = figure(title = 'e2', x_range = s1.x_range, y_range = s1.y_range, tools = TOOLS, tooltips = [('Position', '@Position'), ('Score', '@e2'), ('Sequence', '@Seq')])
-    
+
     s2.line('Position', 'e2', line_width = 2, color = Viridis5[1], source = source)
-    
+
     s2.yaxis.axis_label = "Score"
 
     ''' Individual Line Graph for  e3 '''
-    
+
     s3 = figure(title = 'e3',x_range = s1.x_range, y_range = s1.y_range, tools = TOOLS, tooltips = [('Position', '@Position'), ('Score', '@e3'), ('Sequence', '@Seq')])
-    
+
     s3.line('Position', 'e3', line_width = 2, color = Viridis5[2], source = source)
-    
+
     s3.yaxis.axis_label = "Score"
 
     ''' Individual Line Graph for  pA Site '''
-    
+
     s4 = figure(title = 'pA Site', x_range = s1.x_range, y_range = s1.y_range, tools = TOOLS,
                 tooltips = [('Position', '@Position'), ('Score', '@pASite'), ('Sequence', '@Seq')])
-    
+
     s4.line('Position', 'pASite', line_width = 2, color = Viridis5[3], source = source)
-    
+
     s4.yaxis.axis_label = "Score"
 
     ''' Individual Line Graph for  e4 '''
-     
+
     s5 = figure(title='e4',x_range = s1.x_range, y_range = s1.y_range, tools = TOOLS, tooltips = [('Position', '@Position'), ('Score', '@e4'), ('Sequence', '@Seq')])
-    
+
     s5.line('Position', 'e4', line_width = 2, color = Viridis5[4], source = source)
-    
+
     s5.yaxis.axis_label = "Score"
 
     '''
@@ -224,22 +224,24 @@ def Stacked_Line_Plot(data, TOOLS):
     return(l)
 
 def main():
-    
+
     data_file = sys.argv[1]
     raw_data = pd.read_csv(data_file, sep = '\t', skiprows = 1, header = None, names = ['Base', 'Position', 'e1', 'e2', 'e3', 'pASite', 'e4'])
     TOOLS = "hover, save, pan, box_zoom, undo, redo, reset, wheel_zoom"
 
    #c output_file('Data-Visualization-Layout.html', title = '')
-    
-    lineplot = Stacked_Line_Plot(raw_data, TOOLS)    
+
+    lineplot = Stacked_Line_Plot(raw_data, TOOLS)
     heatmap = Intensity_Plot(raw_data, TOOLS)
 
-    first_panel = Panel(child = lineplot, title = 'Line Plot')
-    second_panel = Panel(child = heatmap, title = 'Heatmap')
+    show(lineplot)
+    #show(heatmap)
 
-    tabs = Tabs(tabs = [first_panel, second_panel])
+    #first_panel = Panel(child = lineplot, title = 'Line Plot')
+    #second_panel = Panel(child = heatmap, title = 'Heatmap')
 
-    show(tabs)
+    #tabs = Tabs(tabs = [first_panel, second_panel])
+
 
 if __name__ == "__main__":
     main()

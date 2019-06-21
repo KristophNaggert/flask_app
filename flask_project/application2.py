@@ -15,7 +15,7 @@ Import required libraries and specific functions.
 from flask import Flask, render_template, request
 from wtforms import Form, TextField, validators
 from wtforms.validators import DataRequired, Optional
-import sys, time, requests
+import sys, time, requests, subprocess
 import pandas as pd
 import numpy as np
 
@@ -87,26 +87,35 @@ def index():
         downstreamBuf = form.downstream_buffer.data
         user_input_seq = form.sequence.data
 
-        '''
-        Need to come up with a useable solution here.
-        '''
-
-        time.sleep(15) '''This will need to be changed in the final iteration of the application'''
-
         gene_from_genome = convert_to_symbol(gene_from_genome)
 
-        global seq
-        seq = get_seq(gene_from_genome, upstreamBuf, downstreamBuf)
-        print(seq)
+        fasta_file = open(gene_from_genome+'.fa', 'w')
+        fasta_file.write(get_seq(gene_from_genome, upstreamBuf, downstreamBuf))
 
         '''
-        Run the predictive program with the fetched or user inputed sequence.
+        subprocess.Popen(['/var/www/vhosts/knaggert-vm.mdibl.net/paHMM/bin/hmm', '< /var/www/vhosts/knaggert-vm.mdibl.net/paHMM/testHMM/testScript.txt'], shell = True)
 
-        pred_out = predict(seq) #Probabily need to turn this into a global variable.
+            * If this doesn't work try subprocess.call()
+
+            Structure of Flask_App Directory
+            --------------------------------
+
+                        flask_app
+
+        application2.py | paHMM | templates | data
+
+                    | testHMM / bin |
+
+            | testScript.txt / gene.fa / Export |
+
+                                    | gene.fa.pos.txt|
         '''
 
         '''
         Pass that predictive output into the data visualization tools.
+
+        df = pd.read_csv('/var/www/vhosts/knaggert-vm.mdibl.net/paHMM/testHMMM/Export/'+gene_from_genome+'fa.pos.txt',
+        sep='\t', skiprows=1, header = None, names = ['Base', 'Position', 'e1', 'e2', 'e3', 'pA Site', 'e4'])
         '''
 
         '''
@@ -135,7 +144,7 @@ def get_seq(gene_from_genome, upstreamBuf, downstreamBuf):
 
     ext = '/sequence/id/'+gene_from_genome+'?expand_5prime='+downstreamBuf+';expand_3prime='+upstreamBuf
 
-    r = requests.get(server+ext, headers={ "Content-Type" : "text/plain"})
+    r = requests.get(server+ext, headers={ "Content-Type" : "text/x-fasta"})
 
     if not r.ok:
         r.raise_for_status()
